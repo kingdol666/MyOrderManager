@@ -1,10 +1,34 @@
 <template>
-  <div class="manager-container">
-    <div class="toolbar">
-      <el-button type="primary" @click="handleAdd">增加</el-button>
+  <div class="order-manager">
+    <div class="header">
+      <h2 class="title">菜单管理</h2>
+      <div class="actions">
+        <el-button type="primary" @click="handleAdd">
+          <el-icon><Plus /></el-icon>
+          <span>增加</span>
+        </el-button>
+      </div>
     </div>
 
-    <el-table :data="tableData" style="width: 100%" v-loading="loading" border fit>
+    <el-alert
+      v-if="error"
+      title="加载菜单失败"
+      type="error"
+      :description="error.message"
+      show-icon
+      closable
+    />
+
+    <el-card shadow="hover" class="table-container">
+
+    <el-table 
+      v-loading="loading"
+      :data="tableData" 
+      border 
+      stripe
+      style="width: 100%"
+      :header-cell-style="{background: '#f5f7fa', color: '#606266'}"
+    >
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column prop="id" label="ID" width="80" align="center" />
       <el-table-column prop="name" label="名称" min-width="150" show-overflow-tooltip />
@@ -15,16 +39,11 @@
         </template>
       </el-table-column>
       <el-table-column prop="imageUrl" label="图片" width="120" align="center">
-         <template #default="scope">
-            <el-image
-              style="width: 50px; height: 50px"
-              :src="scope.row.imageUrl"
-              :preview-src-list="[scope.row.imageUrl]"
-              fit="cover"
-              v-if="scope.row.imageUrl"
-            />
-            <span v-else>无图</span>
-          </template>
+        <template #default="scope">
+          <el-image style="width: 50px; height: 50px" :src="scope.row.imageUrl" :preview-src-list="[scope.row.imageUrl]"
+            fit="cover" v-if="scope.row.imageUrl" />
+          <span v-else>无图</span>
+        </template>
       </el-table-column>
       <el-table-column prop="available" label="是否可用" width="120" align="center">
         <template #default="scope">
@@ -33,7 +52,7 @@
           </el-tag>
         </template>
       </el-table-column>
-       <el-table-column prop="isRecommend" label="是否推荐" width="120" align="center">
+      <el-table-column prop="isRecommend" label="是否推荐" width="120" align="center">
         <template #default="scope">
           <el-tag :type="scope.row.isRecommend ? 'success' : 'info'">
             {{ scope.row.isRecommend ? '是' : '否' }}
@@ -43,14 +62,14 @@
       <el-table-column prop="salesCount" label="销量" width="100" align="center" />
       <el-table-column prop="categoryName" label="分类" min-width="120" show-overflow-tooltip />
       <el-table-column prop="createTime" label="创建时间" width="180" align="center">
-         <template #default="scope">
-            {{ formatArrayToDateTime(scope.row.createTime) }}
-          </template>
+        <template #default="scope">
+          {{ formatArrayToDateTime(scope.row.createTime) }}
+        </template>
       </el-table-column>
       <el-table-column prop="updateTime" label="更新时间" width="180" align="center">
-         <template #default="scope">
-            {{ formatArrayToDateTime(scope.row.updateTime) }}
-          </template>
+        <template #default="scope">
+          {{ formatArrayToDateTime(scope.row.updateTime) }}
+        </template>
       </el-table-column>
       <el-table-column label="操作" width="180" fixed="right" align="center">
         <template #default="scope">
@@ -61,15 +80,9 @@
     </el-table>
 
     <div class="pagination-container">
-      <el-pagination
-        v-model:current-page="pagination.currentPage"
-        v-model:page-size="pagination.pageSize"
-        :page-sizes="[10, 20, 50, 100]"
-        :total="pagination.total"
-        layout="total, sizes, prev, pager, next, jumper"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
+      <el-pagination v-model:current-page="pagination.currentPage" v-model:page-size="pagination.pageSize"
+        :page-sizes="[10, 20, 50, 100]" :total="pagination.total" layout="total, sizes, prev, pager, next, jumper"
+        @size-change="handleSizeChange" @current-change="handleCurrentChange" />
     </div>
 
     <!-- Add/Edit Dialog (Placeholder) -->
@@ -78,56 +91,36 @@
         <el-form-item label="商品名称" prop="name">
           <el-input v-model="formData.name" placeholder="请输入商品名称" />
         </el-form-item>
-        
+
         <el-form-item label="商品描述" prop="description">
-          <el-input
-            v-model="formData.description"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入商品描述"
-          />
+          <el-input v-model="formData.description" type="textarea" :rows="3" placeholder="请输入商品描述" />
         </el-form-item>
-        
+
         <el-form-item label="价格" prop="price">
-          <el-input-number
-            v-model="formData.price"
-            :precision="2"
-            :step="0.1"
-            :min="0"
-            placeholder="请输入价格"
-          />
+          <el-input-number v-model="formData.price" :precision="2" :step="0.1" :min="0" placeholder="请输入价格" />
         </el-form-item>
-        
+
         <el-form-item label="分类" prop="categoryId">
           <el-select v-model="formData.categoryId" placeholder="请选择分类">
-            <el-option
-              v-for="category in store.categories"
-              :key="category.id"
-              :label="category.name"
-              :value="category.id"
-            />
+            <el-option v-for="category in store.categories" :key="category.id" :label="category.name"
+              :value="category.id" />
           </el-select>
         </el-form-item>
-        
+
         <el-form-item label="是否可用" prop="available">
           <el-switch v-model="formData.available" />
         </el-form-item>
-        
+
         <el-form-item label="是否推荐" prop="isRecommend">
           <el-switch v-model="formData.isRecommend" />
         </el-form-item>
-        
+
         <el-form-item label="销量" prop="salesCount">
           <el-input-number v-model="formData.salesCount" :min="0" />
         </el-form-item>
-        
+
         <el-form-item label="商品图片" prop="imageUrl">
-          <el-upload
-            action="#"
-            :auto-upload="false"
-            :on-change="handleImageChange"
-            :show-file-list="false"
-          >
+          <el-upload action="#" :auto-upload="false" :on-change="handleImageChange" :show-file-list="false">
             <el-button type="primary">上传图片</el-button>
             <div v-if="formData.imageUrl" class="image-preview">
               <el-image :src="formData.imageUrl" style="width: 100px; height: 100px" />
@@ -135,7 +128,7 @@
           </el-upload>
         </el-form-item>
       </el-form>
-      
+
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="dialogVisible = false">取消</el-button>
@@ -143,8 +136,87 @@
         </span>
       </template>
     </el-dialog>
+    </el-card>
   </div>
 </template>
+
+<style scoped lang="scss">
+.order-manager {
+  padding: 24px;
+  height: 100%;
+  background-color: #f5f7fa;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 16px 24px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+
+    .title {
+      color: #303133;
+      font-size: 20px;
+      font-weight: 600;
+    }
+  }
+
+  .table-container {
+    margin-top: 0;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    
+    :deep(.el-card__body) {
+      padding: 0;
+    }
+  }
+
+  .pagination-container {
+    margin-top: 16px;
+    padding: 16px;
+    background-color: #fff;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  }
+
+  :deep(.el-table) {
+    border-radius: 8px;
+    overflow: hidden;
+
+    .el-table__header-wrapper {
+      th {
+        background-color: #f8f9fa !important;
+        color: #495057;
+        font-weight: 600;
+      }
+    }
+
+    .el-table__row {
+      transition: all 0.3s;
+
+      &:hover {
+        background-color: #f8f9fa !important;
+        transform: translateY(-1px);
+      }
+      
+      td {
+        padding: 12px 0;
+        border-bottom: 1px solid #e9ecef;
+      }
+    }
+
+    .el-button {
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+  }
+}
+</style>
 
 <script setup>
 import { ref, reactive, onMounted, watch } from 'vue';
@@ -171,32 +243,32 @@ const fetchData = () => {
   console.log(store.products)
   const start = (pagination.currentPage - 1) * pagination.pageSize;
   const end = start + pagination.pageSize;
-  
+
   tableData.value = store.products.slice(start, end);
   pagination.total = store.products.length;
-  
+
   loading.value = false;
 };
 
 // --- Lifecycle Hook ---
 onMounted(
   async () => {
-  try {
-    const categories = await getCategorys();
-    store.setCategories(categories);
-    const menuItems = await getMenuItems()
-    console.log('从API获取的菜单项数据:', menuItems)
-    // 检查每个菜单项的isRecommend值
-    menuItems.forEach(item => {
-      console.log(`菜单项ID: ${item.id}, 名称: ${item.name}, 是否推荐: ${item.isRecommend}`)
-    })
-    store.setProducts(menuItems)
-    console.log('store中的products:', store.products)
-    fetchData();
-  } catch (error) {
-    console.error('获取菜单项失败:', error)
-  }
-});
+    try {
+      const categories = await getCategorys();
+      store.setCategories(categories);
+      const menuItems = await getMenuItems()
+      console.log('从API获取的菜单项数据:', menuItems)
+      // 检查每个菜单项的isRecommend值
+      menuItems.forEach(item => {
+        console.log(`菜单项ID: ${item.id}, 名称: ${item.name}, 是否推荐: ${item.isRecommend}`)
+      })
+      store.setProducts(menuItems)
+      console.log('store中的products:', store.products)
+      fetchData();
+    } catch (error) {
+      console.error('获取菜单项失败:', error)
+    }
+  });
 
 // Watch for products changes
 watch(() => store.products, () => {
@@ -213,7 +285,7 @@ const handleDelete = (index, row) => {
       type: 'warning',
     }
   )
-    .then(async ()  => {
+    .then(async () => {
       await deleteMenuItem(row.id)
       store.removeProduct(row.id)
       ElMessage.success('删除成功')
@@ -267,14 +339,14 @@ const handleImageChange = (file) => {
 const handleDialogConfirm = async () => {
   try {
     await formRef.value.validate();
-    
+
     const selectedCategory = store.categories.find(cat => cat.id === formData.value.categoryId);
     formData.value.categoryName = selectedCategory ? selectedCategory.name : '';
-    
+
     const now = new Date().toISOString();
     if (dialogTitle.value === '增加数据') {
       formData.value.createTime = now;
-      
+
       // 准备菜单项数据
       const menuItem = {
         name: formData.value.name,
@@ -284,23 +356,24 @@ const handleDialogConfirm = async () => {
         isRecommend: formData.value.isRecommend,
         salesCount: formData.value.salesCount,
       };
-      
+
       // 获取上传的文件
       const fileInput = document.querySelector('.el-upload input[type="file"]');
       const file = fileInput?.files[0];
-      
+
       if (!file) {
         throw new Error('请上传商品图片');
       }
-      
+
       // 调用API创建菜单项
       const response = await createMenuItem(file, menuItem, formData.value.categoryId);
 
-      store.addProduct({...formData.value});
+      store.addProduct({ ...formData.value });
       ElMessage.success('创建菜单项成功');
+      location.reload();
     } else {
       formData.value.updateTime = now;
-      
+
       // 准备菜单项数据
       const menuItem = {
         id: formData.value.id,
@@ -311,18 +384,18 @@ const handleDialogConfirm = async () => {
         isRecommend: formData.value.isRecommend,
         salesCount: formData.value.salesCount,
       };
-      
+
       // 获取上传的文件
       const fileInput = document.querySelector('.el-upload input[type="file"]');
       const file = fileInput?.files[0] || null;
-      
+
       // 调用API更新菜单项
       const response = await updataMenuItem(file, menuItem, formData.value.categoryId);
-      
-      store.updateProduct({...formData.value});
+
+      store.updateProduct({ ...formData.value });
       ElMessage.success('更新菜单项成功');
     }
-    
+
     dialogVisible.value = false;
     fetchData();
   } catch (error) {
@@ -401,8 +474,8 @@ function formatArrayToDateTime(timeArray) {
 
     // 4. 检查 Date 对象是否有效 (防止如 month=13 等无效输入导致 Invalid Date)
     if (isNaN(date.getTime())) {
-       console.error('Invalid date components in array:', timeArray);
-       return 'Invalid Date';
+      console.error('Invalid date components in array:', timeArray);
+      return 'Invalid Date';
     }
 
     // 5. 手动格式化为 'YYYY-MM-DD HH:mm:ss'
@@ -444,19 +517,19 @@ function formatArrayToDateTime(timeArray) {
   flex: 1;
   margin-bottom: 0;
   width: 100%;
-  
+
   .el-table__row {
     height: 60px;
   }
-  
+
   .el-table__cell {
     padding: 16px 0;
   }
-  
+
   .el-button {
     margin: 0 4px;
   }
-  
+
   .el-table__body tr:hover>td {
     background-color: #f5f7fa;
   }

@@ -232,3 +232,38 @@ export const deleteMenuItem = async (id) => {
     throw error;
   }
 };
+
+// 获取订单列表
+export const getOrders = async () => {
+  try {
+    const response = await axios.get("/api/orders/all");
+    return response;
+  } catch (error) {
+    console.error("获取订单列表失败:", error);
+    throw error;
+  }
+};
+
+// 处理订单
+export const handleOrder = async (orderId) => {
+  try {
+    const response = await axios.post(`/api/orders/${orderId}/handle`);
+    return response; 
+  }
+  catch (error) {
+    console.error("处理订单失败:", error);
+    throw error; 
+  }
+};
+
+// 完成订单
+export const completeOrder = async (orderId) => {
+  try {
+    const response = await axios.post(`/api/orders/${orderId}/complete`);
+    return response; 
+  }
+  catch (error) {
+    console.error("处理订单失败:", error);
+    throw error; 
+  }
+}

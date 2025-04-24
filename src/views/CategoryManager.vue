@@ -1,10 +1,34 @@
 <template>
-  <div class="manager-container">
-    <div class="toolbar">
-      <el-button type="primary" @click="handleAdd">增加</el-button>
+  <div class="order-manager">
+    <div class="header">
+      <h2 class="title">分类管理</h2>
+      <div class="actions">
+        <el-button type="primary" @click="handleAdd">
+          <el-icon><Plus /></el-icon>
+          <span>增加</span>
+        </el-button>
+      </div>
     </div>
 
-    <el-table :data="tableData" style="width: 100%" v-loading="loading" border fit>
+    <el-alert
+      v-if="error"
+      title="加载分类失败"
+      type="error"
+      :description="error.message"
+      show-icon
+      closable
+    />
+
+    <el-card shadow="hover" class="table-container">
+
+    <el-table 
+      v-loading="loading"
+      :data="tableData" 
+      border 
+      stripe
+      style="width: 100%"
+      :header-cell-style="{background: '#f5f7fa', color: '#606266'}"
+    >
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column prop="id" label="ID" width="80" align="center" />
       <el-table-column prop="name" label="分类名称" min-width="150" show-overflow-tooltip />
@@ -74,8 +98,87 @@
         </span>
       </template>
     </el-dialog>
+    </el-card>
   </div>
 </template>
+
+<style scoped lang="scss">
+.order-manager {
+  padding: 24px;
+  height: 100%;
+  background-color: #f5f7fa;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 16px 24px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+
+    .title {
+      color: #303133;
+      font-size: 20px;
+      font-weight: 600;
+    }
+  }
+
+  .table-container {
+    margin-top: 0;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    
+    :deep(.el-card__body) {
+      padding: 0;
+    }
+  }
+
+  .pagination-container {
+    margin-top: 16px;
+    padding: 16px;
+    background-color: #fff;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  }
+
+  :deep(.el-table) {
+    border-radius: 8px;
+    overflow: hidden;
+
+    .el-table__header-wrapper {
+      th {
+        background-color: #f8f9fa !important;
+        color: #495057;
+        font-weight: 600;
+      }
+    }
+
+    .el-table__row {
+      transition: all 0.3s;
+
+      &:hover {
+        background-color: #f8f9fa !important;
+        transform: translateY(-1px);
+      }
+      
+      td {
+        padding: 12px 0;
+        border-bottom: 1px solid #e9ecef;
+      }
+    }
+
+    .el-button {
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+  }
+}
+</style>
 
 <script setup>
 import { ref, reactive, onMounted, watch } from 'vue';

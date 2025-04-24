@@ -9,7 +9,7 @@
       <el-menu-item index="0">
         <img
           style="width: 50px"
-          src="../assets/vue.svg"
+          src="../../public/order.svg"
           alt="Element logo"
         />
       </el-menu-item>

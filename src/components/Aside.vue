@@ -17,7 +17,7 @@
         </el-icon>
         <span>功能目录</span>
       </template>
-      <el-menu-item-group>
+      <!-- <el-menu-item-group>
         <template #title><span>测试</span></template>
         <el-menu-item index="/about" :route="{ path: '/about' }">
           <el-icon>
@@ -31,39 +31,45 @@
           </el-icon>
           <span>用户Home</span>
         </el-menu-item>
-      </el-menu-item-group>
+      </el-menu-item-group> -->
       <el-menu-item-group title="管理系统">
-        <el-menu-item index="/CategoryManager" :route="{ path: '/CategoryManager' }">
+        <el-menu-item index="/main/CategoryManager" :route="{ path: '/main/CategoryManager' }">
           <el-icon>
-            <User />
+            <Collection />
           </el-icon>
           <span>分类管理</span>
         </el-menu-item>
-        <el-menu-item index="/ManuManger" :route="{ path: '/ManuManger' }">
+        <el-menu-item index="/main/ManuManger" :route="{ path: '/main/ManuManger' }">
           <el-icon>
-            <User />
+            <Menu />
           </el-icon>
           <span>菜单管理</span>
+        </el-menu-item>
+        <el-menu-item index="/main/OrderManager" :route="{ path: '/main/OrderManager' }">
+          <el-icon>
+            <Document />
+          </el-icon>
+          <span>订单管理</span>
         </el-menu-item>
       </el-menu-item-group>
     </el-sub-menu>
 
-    <el-menu-item index="2">
+    <!-- <el-menu-item index="2">
       <el-icon>
         <setting />
       </el-icon>
       <template #title>Navigator Four</template>
-    </el-menu-item>
+    </el-menu-item> -->
   </el-menu>
 </template>
 
 <script lang="ts" setup>
 import { ref } from "vue";
 import {
-  Document,
   Menu as IconMenu,
-  Location,
-  Setting,
+  Collection,
+  Menu,
+  Document
 } from "@element-plus/icons-vue";
 
 const isCollapse = ref(true);

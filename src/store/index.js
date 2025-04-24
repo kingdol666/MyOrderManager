@@ -8,6 +8,8 @@ export const useMainStore = defineStore('main', {
     products: [],
     // 分类数据
     categories: [],
+    // 订单数据
+    orders: [],
     // 系统配置
     systemConfig: {
       theme: 'light',
@@ -17,6 +19,8 @@ export const useMainStore = defineStore('main', {
     loading: false
   }),
   getters: {
+    // 获取orders
+    getOrder: (state) => state.orders,
     // 获取当前主题
     currentTheme: (state) => state.systemConfig.theme,
     // 获取当前语言
@@ -72,7 +76,14 @@ export const useMainStore = defineStore('main', {
     // 设置加载状态
     setLoading(loading) {
       this.loading = loading
-    }
+    },
+    // 订单数据操作
+    setOrders(orders) {
+      this.orders = orders
+    },
+    addOrder(order) {
+      this.orders.push(order)
+    },
   },
   // 开启持久化
   persist: true
